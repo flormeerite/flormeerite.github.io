@@ -3,151 +3,191 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<meta name="theme-color" content="#E4E7E9">
-<title>Каталог</title>
+<meta name="theme-color" content="#160A1A">
+<title>ohhwea</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=Unbounded:wght@500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=Oswald:wght@500;600&family=Pirata+One&family=PT+Mono&display=swap">
 <style>
 :root{
-  --bg:#E4E7E9;
-  --paper:#F6F6F3;
-  --ink:#111417;
-  --muted:#5C656C;
-  --line:#C8CED3;
-  --accent:#2540FF;
-  --f-display:'Unbounded',system-ui,sans-serif;
+  --bg:#160A1A;            /* тёмно-сливовый */
+  --bg-hi:#2E1336;
+  --ivory:#EFE6CC;         /* слоновая кость */
+  --ivory-dim:#A99FA9;
+  --pumpkin:#FF7A1A;       /* тыква */
+  --green:#8CE82F;         /* ядовито-зелёный */
+  --blood:#B3243A;         /* логотип */
+  --wood:#2A170F;
+  --paper-ink:#24160F;
+  --paper-red:#7C1628;
+  --line:rgba(239,230,204,.14);
+  --f-head:'Oswald','Arial Narrow',system-ui,sans-serif;
+  --f-logo:'Pirata One',Georgia,serif;
   --f-text:'Golos Text',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --f-type:'PT Mono','Courier New',monospace;
   --ease:cubic-bezier(.2,.8,.2,1);
   --safe-t:env(safe-area-inset-top,0px);
   --safe-b:env(safe-area-inset-bottom,0px);
 }
 *{box-sizing:border-box;margin:0}
-html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ivory);
   font:400 15px/1.4 var(--f-text);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:left;touch-action:manipulation}
-:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+
+/* зерно плёнки поверх всего */
+body::after{content:'';position:fixed;inset:0;z-index:100;pointer-events:none;background-image:var(--grain-film);opacity:.5}
 
 /* ---------- страницы ---------- */
 .page{position:fixed;inset:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;background:var(--bg)}
+.wood{background:
+  radial-gradient(130% 55% at 50% 0%,rgba(0,0,0,.6),transparent 72%),
+  repeating-linear-gradient(90deg,transparent 0 95px,rgba(0,0,0,.55) 95px 97px,rgba(255,200,150,.04) 97px 98px),
+  var(--grain-wood),var(--wood)}
 
-/* главная: список категорий */
-.home{z-index:1;padding:calc(24px + var(--safe-t)) 16px calc(28px + var(--safe-b));transition:transform .45s var(--ease)}
+/* главная */
+.home{z-index:1;padding:calc(34px + var(--safe-t)) 18px calc(28px + var(--safe-b));
+  background:radial-gradient(110% 45% at 12% 0%,var(--bg-hi),transparent 70%),var(--bg);
+  transition:transform .45s var(--ease)}
 .home.shift{transform:translateX(-14%)}
-.home h1{font:600 30px/1.05 var(--f-display);letter-spacing:-.02em}
-.home .sub{margin-top:8px;color:var(--muted)}
-.rows{margin-top:28px;border-top:1px solid var(--line)}
+.web{position:absolute;top:0;right:0;width:176px;height:176px;opacity:.2;transform:scaleX(-1);pointer-events:none}
+.logo{position:relative;font:400 84px/.9 var(--f-logo);color:var(--blood);
+  text-shadow:0 0 24px rgba(179,36,58,.55);animation:flicker 1.8s .15s both}
+@keyframes flicker{
+  0%{opacity:0}8%{opacity:.9}12%{opacity:.2}16%{opacity:1}30%{opacity:.45}34%{opacity:1}60%{opacity:.75}64%{opacity:1}100%{opacity:1}
+}
+.home .sub{position:relative;margin-top:10px;color:var(--ivory-dim)}
+.rows{position:relative;margin-top:30px;border-top:1px solid var(--line)}
 .row{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;
-  padding:18px 0;border-bottom:1px solid var(--line);transition:transform .15s var(--ease)}
-.row:active{transform:scale(.985)}
-.row-name{display:flex;flex-direction:column;gap:3px;font:500 21px/1.15 var(--f-display);letter-spacing:-.02em}
-.row-count{display:block;margin-top:9px;font-size:13px;color:var(--muted)}
-.row svg{width:68px;height:68px;flex:none}
+  padding:16px 0;border-bottom:1px solid var(--line)}
+.row-name{display:flex;flex-direction:column;gap:1px;font:600 40px/.98 var(--f-head);color:var(--ivory);
+  transition:color .2s var(--ease),transform .25s var(--ease)}
+.row:active .row-name{color:var(--pumpkin);transform:translateX(6px)}
+.row-count{display:block;margin-top:10px;font-size:13px;color:var(--green)}
+.row svg{width:74px;height:74px;flex:none;filter:drop-shadow(0 0 6px rgba(239,230,204,.3));transition:transform .3s var(--ease)}
+.row:active svg{transform:rotate(-6deg) scale(1.06)}
 
 /* категория */
 .cat{z-index:2;transform:translateX(100%);visibility:hidden;transition:transform .45s var(--ease),visibility 0s .45s}
 .cat.open{transform:none;visibility:visible;transition:transform .45s var(--ease)}
-.bar{position:sticky;top:0;z-index:5;display:flex;align-items:center;height:52px;padding:var(--safe-t) 6px 0;background:var(--bg)}
+.bar{position:sticky;top:0;z-index:5;display:flex;align-items:center;height:52px;padding:var(--safe-t) 6px 0}
 .back{display:grid;place-items:center;width:44px;height:44px;border-radius:50%}
-.back:active{background:var(--line)}
+.back:active{background:rgba(239,230,204,.14)}
 .tg .bar{display:none}
-.cat-head{padding:calc(12px + var(--safe-t)) 16px 22px}
+.cat-head{padding:calc(12px + var(--safe-t)) 18px 24px}
 .bar + .cat-head{padding-top:6px}
-.cat-title{display:flex;flex-direction:column;gap:3px;font:600 26px/1.1 var(--f-display);letter-spacing:-.02em}
-.cat-count{margin-top:10px;color:var(--muted)}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 12px;padding:0 16px calc(32px + var(--safe-b))}
-.empty{grid-column:1/-1;padding:24px 0;color:var(--muted)}
+.tg .cat-head{padding-top:calc(16px + var(--safe-t))}
+.cat-title{display:flex;flex-direction:column;gap:1px;font:600 56px/.96 var(--f-head);color:var(--ivory)}
+.cat-count{margin-top:12px;color:var(--green)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:30px 14px;padding:6px 18px calc(36px + var(--safe-b))}
+.empty{grid-column:1/-1;padding:24px 0;color:var(--ivory-dim)}
 
-/* плашка вещи */
-.card{display:block;width:100%;transition:transform .15s var(--ease);
-  animation:rise .5s var(--ease) backwards;animation-delay:calc(var(--i,0)*35ms + 140ms)}
-.card:active{transform:scale(.97)}
-@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+/* плашка вещи: тёмная плитка на гвозде */
+.card{--r:0deg;display:block;width:100%;transform:rotate(var(--r));transform-origin:50% 10px;
+  transition:transform .2s var(--ease);
+  animation:nailed .6s var(--ease) backwards;animation-delay:calc(var(--i,0)*70ms + 160ms)}
+.card:active{transform:rotate(var(--r)) scale(.96)}
+@keyframes nailed{
+  0%{opacity:0;transform:translateY(-22px) rotate(calc(var(--r) - 7deg)) scale(1.06)}
+  50%{opacity:1;transform:translateY(0) rotate(calc(var(--r) + 2.4deg)) scale(1)}
+  75%{transform:rotate(calc(var(--r) - 1deg))}
+  100%{transform:rotate(var(--r))}
+}
 .art{position:relative;aspect-ratio:4/5;display:grid;place-items:center;overflow:hidden;
-  background:var(--paper);border-radius:14px}
-.art svg{width:78%;height:auto}
+  background:radial-gradient(90% 70% at 50% 42%,#40204A 0,#26122D 55%,#190B1F 100%);
+  border:1px solid rgba(239,230,204,.13);border-radius:8px;box-shadow:0 12px 20px rgba(0,0,0,.5)}
+.art svg{width:78%;height:auto;filter:drop-shadow(0 0 8px rgba(239,230,204,.28))}
 .art img{width:100%;height:100%;object-fit:cover}
-.art::before{content:'';position:absolute;top:10px;left:50%;width:9px;height:9px;margin-left:-4.5px;
-  border-radius:50%;background:var(--bg);box-shadow:inset 0 1px 1px rgba(0,0,0,.28);z-index:1}
-.meta{display:block;padding:10px 2px 0}
-.name{display:-webkit-box;line-clamp: 2;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:500;line-height:1.25}
-.price{display:block;margin-top:5px;font-weight:600;font-variant-numeric:tabular-nums}
+.nail,.art::before{width:14px;height:14px;border-radius:50%;
+  background:radial-gradient(circle at 34% 30%,#eadcb8 0 12%,#a07f48 38%,#4d371a 72%,#241808);
+  box-shadow:0 2px 3px rgba(0,0,0,.65),0 0 0 1px rgba(0,0,0,.55)}
+.art::before{content:'';position:absolute;top:9px;left:50%;margin-left:-7px;z-index:1}
+.meta{display:block;padding:12px 2px 0}
+.name{display:-webkit-box;line-clamp:2;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:500;line-height:1.25}
+.price{display:block;margin-top:6px;font-weight:600;color:var(--pumpkin);font-variant-numeric:tabular-nums}
 
 /* страница вещи */
 .item{z-index:3;transform:translateY(100%);visibility:hidden;transition:transform .5s var(--ease),visibility 0s .5s}
 .item.open{transform:none;visibility:visible;transition:transform .5s var(--ease)}
 .item.instant,.item.instant.open{transition:none}
-.hero{margin:calc(12px + var(--safe-t)) 16px 0;border-radius:20px}
+.hero{margin:calc(12px + var(--safe-t)) 18px 0}
 .bar + .hero{margin-top:0}
-.i-head{padding:20px 16px 0}
-.i-name{font:500 21px/1.2 var(--f-display);letter-spacing:-.02em}
-.i-price{margin-top:10px;font:600 24px/1 var(--f-text);font-variant-numeric:tabular-nums}
+.tg .hero{margin-top:calc(12px + var(--safe-t))}
+.i-head{padding:22px 18px 0}
+.i-name{font:600 32px/1.05 var(--f-head);color:var(--ivory)}
+.i-price{margin-top:10px;font:600 26px/1 var(--f-text);color:var(--pumpkin);font-variant-numeric:tabular-nums}
 
-/* паспорт: бирка на нитке */
-.tagwrap{position:relative;margin:4px 16px 8px;padding-top:44px;transform-origin:50% 14px;
-  transform:rotate(7deg);filter:drop-shadow(0 10px 16px rgba(17,20,23,.14))}
-.nail{position:absolute;top:8px;left:50%;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:var(--ink);z-index:3}
-.string{position:absolute;top:14px;left:50%;width:2px;height:52px;margin-left:-1px;background:var(--ink);z-index:2}
-.tagwrap.swing{animation:swing 1.7s ease-in-out both}
-@keyframes swing{
-  0%{transform:rotate(7deg)}
-  24%{transform:rotate(-5deg)}
-  46%{transform:rotate(3deg)}
-  68%{transform:rotate(-1.4deg)}
-  100%{transform:rotate(0)}
+/* паспорт: бумага, прибитая гвоздём к дереву */
+.pinwrap{--tilt:-1.3deg;position:relative;margin:30px 18px 14px;transform-origin:50% 16px;
+  transform:rotate(var(--tilt));opacity:0;filter:drop-shadow(0 14px 12px rgba(0,0,0,.6))}
+.pinwrap.in{animation:drop 1.9s ease-in-out both}
+@keyframes drop{
+  0%{opacity:0;transform:translateY(-38px) rotate(-8deg) scale(1.06)}
+  30%{opacity:1;transform:translateY(0) rotate(3.4deg) scale(1)}
+  52%{transform:rotate(-2.4deg)}
+  72%{transform:rotate(1.2deg)}
+  100%{opacity:1;transform:rotate(var(--tilt))}
 }
-.tag{position:relative;padding:40px 18px 20px;background:var(--paper);
-  clip-path:polygon(26px 0,calc(100% - 26px) 0,100% 26px,100% 100%,0 100%,0 26px)}
-.hole{position:absolute;top:16px;left:50%;width:12px;height:12px;margin-left:-6px;border-radius:50%;
-  background:var(--bg);box-shadow:inset 0 1px 2px rgba(0,0,0,.35)}
-.tag-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding-bottom:14px;border-bottom:2px dashed var(--line)}
-.tag-title{font:500 15px/1.2 var(--f-display);letter-spacing:-.01em}
-.tag-art{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
-.spec{display:grid;grid-template-columns:104px minmax(0,1fr)}
-.spec dt,.spec dd{padding:11px 0;border-bottom:1px solid var(--line)}
-.spec dt{font-size:13px;color:var(--muted);padding-top:12px}
+.pinwrap .nail{position:absolute;top:11px;left:50%;margin-left:-7px;z-index:3}
+.pinwrap.in .nail{animation:thump .9s ease-out .38s backwards}
+@keyframes thump{0%{transform:scale(2.6);opacity:0}30%{opacity:1}55%{transform:scale(.82)}100%{transform:scale(1)}}
+.paper{position:relative;padding:44px 20px 22px;color:var(--paper-ink);
+  background:var(--grain-paper),radial-gradient(120% 90% at 50% 25%,#F1E7CA 0,#E5D7AF 68%,#CDBB88 100%);
+  clip-path:polygon(0.5% 0.8%,6% 0%,14% 0.9%,23% 0.2%,33% 1%,44% 0.1%,55% 0.9%,66% 0.2%,77% 1%,88% 0.2%,95% 0.9%,100% 0.3%,99.2% 12%,100% 25%,99.3% 39%,100% 52%,99.1% 66%,100% 79%,99.4% 91%,100% 99.6%,94% 99%,85% 100%,74% 99.1%,63% 100%,52% 99%,41% 100%,30% 99.2%,19% 100%,9% 99%,0% 99.7%,0.8% 88%,0% 76%,0.9% 63%,0.1% 50%,0.8% 36%,0% 22%,0.7% 10%)}
+.paper::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(to bottom,transparent 41%,rgba(70,45,20,.13) 41.4%,rgba(255,255,255,.18) 42%,transparent 43%)}
+.p-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding-bottom:12px;border-bottom:2px dashed rgba(36,22,15,.32)}
+.p-title{font:600 30px/1 var(--f-head);color:var(--paper-red)}
+.p-art{font:400 13px var(--f-type);color:rgba(36,22,15,.7)}
+.spec{display:grid;grid-template-columns:96px minmax(0,1fr)}
+.spec dt,.spec dd{padding:12px 0;border-bottom:1.5px dashed rgba(36,22,15,.22)}
+.spec dt{font:400 12px/1.5 var(--f-type);color:rgba(36,22,15,.62);padding-top:14px}
 .spec dd{font-weight:500}
 .spec > :nth-last-child(-n+2){border-bottom:0}
-.chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{min-width:34px;padding:2px 9px;border:1.5px solid var(--ink);border-radius:6px;font-size:13px;font-weight:500;text-align:center}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{min-width:34px;padding:2px 9px;border:1.5px solid var(--paper-ink);border-radius:3px;font:400 13px var(--f-type);text-align:center}
+.chip:nth-child(odd){transform:rotate(-1.6deg)}
+.chip:nth-child(even){transform:rotate(1.3deg)}
 .sw{display:inline-flex;align-items:center;gap:7px;margin:0 14px 4px 0}
-.sw i{width:13px;height:13px;border-radius:50%;border:1px solid rgba(17,20,23,.35)}
-.code{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-top:14px;padding-top:16px;border-top:2px dashed var(--line)}
-.code svg{width:58%;height:34px;fill:var(--ink)}
-.code span{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.sw i{width:13px;height:13px;border-radius:50%;border:1.5px solid var(--paper-ink)}
+.p-foot{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:12px;padding-top:16px;border-top:2px dashed rgba(36,22,15,.32)}
+.p-foot .bars{width:50%;height:36px;fill:var(--paper-ink)}
+.stamp{width:92px;height:92px;flex:none;color:var(--paper-red);opacity:.82;transform:rotate(-14deg);margin:-6px 4px -6px 0}
+.stamp text{font-family:var(--f-logo)}
+.pinwrap.in .stamp{animation:stamp .5s cubic-bezier(.3,1.5,.5,1) 1.05s backwards}
+@keyframes stamp{0%{opacity:0;transform:rotate(-34deg) scale(1.9)}100%{opacity:.82;transform:rotate(-14deg) scale(1)}}
 
-.cta{position:sticky;bottom:0;padding:18px 16px calc(14px + var(--safe-b));background:linear-gradient(to top,var(--bg) 72%,transparent)}
-.btn{display:block;width:100%;height:52px;border-radius:14px;background:var(--accent);color:#fff;
-  font:600 16px/52px var(--f-text);text-align:center;transition:transform .15s var(--ease)}
-.btn:active{transform:scale(.98)}
+.cta{position:sticky;bottom:0;padding:20px 18px calc(14px + var(--safe-b));background:linear-gradient(to top,#1a0e08 66%,transparent)}
+.btn{display:block;width:100%;height:54px;border-radius:12px;background:var(--pumpkin);color:#1A0A12;
+  font:600 17px/54px var(--f-text);text-align:center;box-shadow:0 8px 26px rgba(255,122,26,.32);transition:transform .15s var(--ease)}
+.btn:active{transform:scale(.97)}
 
 /* общий переход картинки: карточка <-> страница вещи */
-::view-transition-group(art){animation-duration:.45s;animation-timing-function:var(--ease)}
+::view-transition-group(art){animation-duration:.5s;animation-timing-function:var(--ease)}
 ::view-transition-old(art),::view-transition-new(art){height:100%;object-fit:cover}
 ::view-transition-old(root),::view-transition-new(root){animation-duration:.3s}
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important}
-  .tagwrap{transform:none}
 }
 </style>
 </head>
 <body>
 
 <main class="page home" id="home">
-  <h1>Каталог</h1>
+  <h1 class="logo" id="logo"></h1>
   <p class="sub" id="total"></p>
   <div class="rows" id="rows"></div>
 </main>
 
-<section class="page cat" id="cat">
+<section class="page cat wood" id="cat">
   <div class="bar"><button class="back" data-act="back" aria-label="Назад"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
   <div class="cat-head" id="catHead"></div>
   <div class="grid" id="grid"></div>
 </section>
 
-<article class="page item" id="item"></article>
+<article class="page item wood" id="item"></article>
 
 <script>
 (() => {
@@ -157,8 +197,10 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
    НАСТРОЙКИ — меняйте здесь
    ===================================================================== */
 const CONFIG = {
+  logo: 'ohhwia',                 // надпись-логотип (главная и печать на паспорте)
   manager: 'zombi3boy',        // username менеджера в Telegram, без @
-  delivery: '10–15 дней'          // срок доставки из Китая (показывается в паспорте)
+  delivery: '10–15 дней',          // срок доставки из Китая (показывается в паспорте)
+  prefillArticle: false            // true: в чат менеджеру подставляется только артикул; false: чат открывается пустым
 };
 
 const CATEGORIES = [
@@ -172,9 +214,10 @@ const CATEGORIES = [
 
 /* Вещь = одна строка. Поле img (ссылка на фото) необязательно:
    пока его нет, показывается силуэт цвета первой расцветки.
-   Данные ниже — ДЕМО, замените на свои. */
+   Данные ниже — ДЕМО, замените на свои.
+   Поля weight, cny, source больше нигде не показываются: их можно удалять. */
 const C = {
-  black:['Чёрный','#1C1F22'], white:['Молочный','#EDEBE4'], olive:['Оливковый','#5B6340'],
+  black:['Чёрный','#1F1F24'], white:['Молочный','#E9E1CB'], olive:['Оливковый','#5B6340'],
   grey:['Серый','#8A9097'], navy:['Тёмно-синий','#1F2A44'], sand:['Песочный','#C9B79A'],
   blue:['Синий деним','#4A6285'], brown:['Коричневый','#5A4234']
 };
@@ -211,6 +254,33 @@ const ITEMS = [
 ];
 
 /* =====================================================================
+   Текстуры (рисуются один раз и кладутся в CSS-переменные)
+   ===================================================================== */
+function texture(w, h, freq, octaves, seed, matrix) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><filter id="f" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="${freq}" numOctaves="${octaves}" seed="${seed}" stitchTiles="stitch"/><feColorMatrix values="${matrix}"/></filter><rect width="100%" height="100%" filter="url(#f)"/></svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+}
+const rootStyle = document.documentElement.style;
+rootStyle.setProperty('--grain-wood',  texture(260, 520, '0.16 0.006', 3, 7, '0 0 0 0 0.05  0 0 0 0 0.02  0 0 0 0 0  0 0 0 1.5 -0.5'));
+rootStyle.setProperty('--grain-paper', texture(220, 220, '0.7', 3, 3, '0 0 0 0 0.25  0 0 0 0 0.16  0 0 0 0 0.07  0 0 0 0.55 -0.12'));
+rootStyle.setProperty('--grain-film',  texture(200, 200, '0.9', 2, 11, '0 0 0 0 0.94  0 0 0 0 0.9  0 0 0 0 0.8  0 0 0 0.12 0'));
+
+/* паутина в углу главной */
+function web() {
+  const ang = [0, 18, 36, 54, 72, 90].map(d => d * Math.PI / 180);
+  let d = '';
+  ang.forEach(a => { d += `M0 0L${(150 * Math.cos(a)).toFixed(1)} ${(150 * Math.sin(a)).toFixed(1)}`; });
+  [38, 74, 110, 146].forEach(r => {
+    for (let i = 0; i < ang.length - 1; i++) {
+      const a1 = ang[i], a2 = ang[i + 1], am = (a1 + a2) / 2;
+      d += `M${(r * Math.cos(a1)).toFixed(1)} ${(r * Math.sin(a1)).toFixed(1)}` +
+           `Q${(r * .8 * Math.cos(am)).toFixed(1)} ${(r * .8 * Math.sin(am)).toFixed(1)} ${(r * Math.cos(a2)).toFixed(1)} ${(r * Math.sin(a2)).toFixed(1)}`;
+    }
+  });
+  return `<svg class="web" viewBox="0 0 150 150" aria-hidden="true"><path d="${d}" fill="none" stroke="#EFE6CC" stroke-width="1"/></svg>`;
+}
+
+/* =====================================================================
    Силуэты (пока нет фото)
    ===================================================================== */
 const SIL = {
@@ -227,10 +297,14 @@ const SIL = {
   tshirts:{ m:'M34 14 Q50 26 66 14 L91 28 L83 46 L73 41 L73 86 L27 86 L27 41 L17 46 L9 28 Z',
             d:'M36 15 Q50 30 64 15 M27 80 H73 M85 38 L78 42 M15 38 L22 42' }
 };
-const sil = (cat, color) =>
-  `<svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">` +
-  `<path d="${SIL[cat].m}" fill="${color}" stroke="#111417" stroke-opacity=".3" stroke-width="1.4" stroke-linejoin="round"/>` +
-  `<path d="${SIL[cat].d}" fill="none" stroke="#111417" stroke-opacity=".3" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const lum = h => { const n = parseInt(h.slice(1), 16); return .299 * (n >> 16) + .587 * ((n >> 8) & 255) + .114 * (n & 255); };
+const sil = (cat, color) => {
+  const dark = lum(color) < 90;
+  const detail = dark ? 'rgba(239,230,204,.32)' : 'rgba(22,10,26,.45)';
+  return `<svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">` +
+    `<path d="${SIL[cat].m}" fill="${color}" stroke="rgba(239,230,204,.72)" stroke-width="1.3" stroke-linejoin="round"/>` +
+    `<path d="${SIL[cat].d}" fill="none" stroke="${detail}" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+};
 
 /* =====================================================================
    Утилиты
@@ -243,16 +317,22 @@ const plural = (n, a, b, c) => { const m = n % 100, d = n % 10; return m > 10 &&
 const CAT = Object.fromEntries(CATEGORIES.map(c => [c.id, c]));
 const ITEM = Object.fromEntries(ITEMS.map(i => [i.id, i]));
 const inCat = id => ITEMS.filter(i => i.cat === id);
+const TILT = [-1.6, 1.1, -.7, 1.5, -1.2, .8, -.4, 1.3];
 const art = (it, eager) => it.img
   ? `<img src="${esc(it.img)}" alt="" decoding="async"${eager ? '' : ' loading="lazy"'}>`
-  : sil(it.cat, it.colors[0].hex);
+  : sil(it.cat, (it.colors && it.colors[0] ? it.colors[0].hex : C.black[1]));
 
 function barcode(text) {
   const bits = '101' + [...text].map(c => c.charCodeAt(0).toString(2).padStart(8, '0')).join('') + '101';
   let x = 2, bars = '';
   for (const b of bits) { if (b === '1') bars += `<rect x="${x}" width="1.6" height="34"/>`; x += 2.2; }
-  return `<svg viewBox="0 0 ${x + 2} 34" preserveAspectRatio="none" aria-hidden="true">${bars}</svg>`;
+  return `<svg class="bars" viewBox="0 0 ${x + 2} 34" preserveAspectRatio="none" aria-hidden="true">${bars}</svg>`;
 }
+
+const stamp = () =>
+  `<svg class="stamp" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="3"/>` +
+  `<circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" stroke-width="1"/>` +
+  `<text x="50" y="59" text-anchor="middle" font-size="25" fill="currentColor">${esc(CONFIG.logo)}</text></svg>`;
 
 /* =====================================================================
    Telegram
@@ -263,13 +343,16 @@ const hap = () => { try { tg.HapticFeedback.selectionChanged(); } catch (_) {} }
 if (inTG) {
   document.documentElement.classList.add('tg');
   try { tg.ready(); tg.expand(); } catch (_) {}
-  try { tg.setHeaderColor('#E4E7E9'); tg.setBackgroundColor('#E4E7E9'); } catch (_) {}
+  try { tg.setHeaderColor('#160A1A'); tg.setBackgroundColor('#160A1A'); } catch (_) {}
   try { tg.disableVerticalSwipes(); } catch (_) {}
   try { tg.BackButton.onClick(() => history.back()); } catch (_) {}
 }
 const syncBack = () => {
   if (!inTG) return;
-  try { route.view === 'home' ? tg.BackButton.hide() : tg.BackButton.show(); } catch (_) {}
+  try {
+    route.view === 'home' ? tg.BackButton.hide() : tg.BackButton.show();
+    tg.setHeaderColor(route.view === 'home' ? '#160A1A' : '#25140D');
+  } catch (_) {}
 };
 
 /* =====================================================================
@@ -281,13 +364,15 @@ let renderedCat = null;
 
 function buildHome() {
   const n = ITEMS.length;
+  $('#logo').textContent = CONFIG.logo;
+  $('#home').insertAdjacentHTML('afterbegin', web());
   $('#total').textContent = `${n} ${plural(n, 'вещь', 'вещи', 'вещей')} из Китая`;
   $('#rows').innerHTML = CATEGORIES.map(c => {
     const k = inCat(c.id).length;
     return `<button class="row" data-cat="${c.id}">
       <span><span class="row-name">${c.names.map(x => `<span>${esc(x)}</span>`).join('')}</span>
       <span class="row-count">${k ? `${k} ${plural(k, 'вещь', 'вещи', 'вещей')}` : 'Скоро'}</span></span>
-      ${sil(c.id, '#F6F6F3')}</button>`;
+      ${sil(c.id, '#2A1530')}</button>`;
   }).join('');
 }
 
@@ -298,7 +383,7 @@ function buildCat(id) {
     `<h2 class="cat-title">${c.names.map(x => `<span>${esc(x)}</span>`).join('')}</h2>` +
     `<p class="cat-count">${list.length ? `${list.length} ${plural(list.length, 'вещь', 'вещи', 'вещей')}` : ''}</p>`;
   el.grid.innerHTML = list.length
-    ? list.map((it, i) => `<button class="card" data-id="${it.id}" style="--i:${Math.min(i, 8)}">
+    ? list.map((it, i) => `<button class="card" data-id="${it.id}" style="--i:${Math.min(i, 8)};--r:${TILT[i % TILT.length]}deg">
         <span class="art">${art(it)}</span>
         <span class="meta"><span class="name">${esc(it.name)}</span><span class="price">${rub(it.price)}</span></span>
       </button>`).join('')
@@ -309,30 +394,27 @@ function buildCat(id) {
 function buildItem(id) {
   const it = ITEM[id];
   const rows = [
-    ['Материал', esc(it.material)],
-    ['Посадка', esc(it.fit)],
-    ['Размеры', `<div class="chips">${it.sizes.map(s => `<span class="chip">${esc(s)}</span>`).join('')}</div>`],
-    ['Цвета', it.colors.map(c => `<span class="sw"><i style="background:${c.hex}"></i>${esc(c.name)}</span>`).join('')],
-    ['Вес', `${it.weight} г`],
-    ['Цена в Китае', `${it.cny} ¥`],
-    ['Площадка', esc(it.source)],
-    ['Доставка', esc(CONFIG.delivery)]
-  ];
+    it.material && ['Материал', esc(it.material)],
+    it.fit && ['Посадка', esc(it.fit)],
+    it.sizes && it.sizes.length && ['Размеры', `<div class="chips">${it.sizes.map(s => `<span class="chip">${esc(s)}</span>`).join('')}</div>`],
+    it.colors && it.colors.length && ['Цвета', it.colors.map(c => `<span class="sw"><i style="background:${c.hex}"></i>${esc(c.name)}</span>`).join('')],
+    CONFIG.delivery && ['Доставка', esc(CONFIG.delivery)]
+  ].filter(Boolean);
   el.item.innerHTML =
     `<div class="bar"><button class="back" data-act="back" aria-label="Назад"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>` +
     `<div class="art hero">${art(it, true)}</div>` +
     `<div class="i-head"><h2 class="i-name">${esc(it.name)}</h2><p class="i-price">${rub(it.price)}</p></div>` +
-    `<div class="tagwrap" id="tagwrap"><i class="nail"></i><i class="string"></i>
-      <div class="tag"><i class="hole"></i>
-        <div class="tag-head"><span class="tag-title">Паспорт вещи</span><span class="tag-art">${esc(it.art)}</span></div>
+    `<div class="pinwrap" id="pinwrap"><i class="nail"></i>
+      <div class="paper">
+        <div class="p-head"><span class="p-title">Паспорт вещи</span><span class="p-art">${esc(it.art)}</span></div>
         <dl class="spec">${rows.map(r => `<dt>${r[0]}</dt><dd>${r[1]}</dd>`).join('')}</dl>
-        <div class="code">${barcode(it.art)}</div>
+        <div class="p-foot">${barcode(it.art)}${stamp()}</div>
       </div></div>` +
     `<div class="cta"><button class="btn" data-act="order">Заказать у менеджера</button></div>`;
   el.item.scrollTop = 0;
 }
 
-const swing = () => { const w = $('#tagwrap'); if (w) requestAnimationFrame(() => w.classList.add('swing')); };
+const settle = () => { const w = $('#pinwrap'); if (w) requestAnimationFrame(() => w.classList.add('in')); };
 
 /* =====================================================================
    Навигация: #/  →  #/c/<категория>  →  #/i/<вещь>
@@ -376,13 +458,13 @@ function render(first) {
     t.finished.catch(() => {}).then(() => {
       name(cardArt(), false); name($('.hero'), false);
       el.item.classList.remove('instant');
-      if (toItem) swing();
+      if (toItem) settle();
     });
     return;
   }
 
   apply();
-  if (next.view === 'item') setTimeout(swing, 320);
+  if (next.view === 'item') setTimeout(settle, 320);
 }
 
 function go(hash) { history.pushState(null, '', hash); render(); }
@@ -403,7 +485,8 @@ function startRoute() {
 
 function order() {
   const it = ITEM[route.id]; if (!it) return;
-  const url = `https://t.me/${CONFIG.manager}?text=${encodeURIComponent(`Хочу заказать: ${it.name} (${it.art})`)}`;
+  const text = CONFIG.prefillArticle ? '?text=' + encodeURIComponent(it.art) : '';
+  const url = `https://t.me/${CONFIG.manager}${text}`;
   if (inTG && tg.openTelegramLink) tg.openTelegramLink(url); else window.open(url, '_blank', 'noopener');
 }
 
@@ -412,7 +495,7 @@ document.addEventListener('click', e => {
   if (!t) return;
   const act = t.dataset.act;
   if (act === 'back') return history.back();
-  if (act === 'order') { try { tg.HapticFeedback.impactOccurred('light'); } catch (_) {} return order(); }
+  if (act === 'order') { try { tg.HapticFeedback.impactOccurred('medium'); } catch (_) {} return order(); }
   hap();
   go(t.dataset.cat ? '#/c/' + t.dataset.cat : '#/i/' + t.dataset.id);
 });
