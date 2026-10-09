@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#E4E7E9">
+<title>Каталог</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=Unbounded:wght@500;600&display=swap">
+<style>
+:root{
+  --bg:#E4E7E9;
+  --paper:#F6F6F3;
+  --ink:#111417;
+  --muted:#5C656C;
+  --line:#C8CED3;
+  --accent:#2540FF;
+  --f-display:'Unbounded',system-ui,sans-serif;
+  --f-text:'Golos Text',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --ease:cubic-bezier(.2,.8,.2,1);
+  --safe-t:env(safe-area-inset-top,0px);
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);
+  font:400 15px/1.4 var(--f-text);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:left;touch-action:manipulation}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+/* ---------- страницы ---------- */
+.page{position:fixed;inset:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;background:var(--bg)}
+
+/* главная: список категорий */
+.home{z-index:1;padding:calc(24px + var(--safe-t)) 16px calc(28px + var(--safe-b));transition:transform .45s var(--ease)}
+.home.shift{transform:translateX(-14%)}
+.home h1{font:600 30px/1.05 var(--f-display);letter-spacing:-.02em}
+.home .sub{margin-top:8px;color:var(--muted)}
+.rows{margin-top:28px;border-top:1px solid var(--line)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;
+  padding:18px 0;border-bottom:1px solid var(--line);transition:transform .15s var(--ease)}
+.row:active{transform:scale(.985)}
+.row-name{display:flex;flex-direction:column;gap:3px;font:500 21px/1.15 var(--f-display);letter-spacing:-.02em}
+.row-count{display:block;margin-top:9px;font-size:13px;color:var(--muted)}
+.row svg{width:68px;height:68px;flex:none}
+
+/* категория */
+.cat{z-index:2;transform:translateX(100%);visibility:hidden;transition:transform .45s var(--ease),visibility 0s .45s}
+.cat.open{transform:none;visibility:visible;transition:transform .45s var(--ease)}
+.bar{position:sticky;top:0;z-index:5;display:flex;align-items:center;height:52px;padding:var(--safe-t) 6px 0;background:var(--bg)}
+.back{display:grid;place-items:center;width:44px;height:44px;border-radius:50%}
+.back:active{background:var(--line)}
+.tg .bar{display:none}
+.cat-head{padding:calc(12px + var(--safe-t)) 16px 22px}
+.bar + .cat-head{padding-top:6px}
+.cat-title{display:flex;flex-direction:column;gap:3px;font:600 26px/1.1 var(--f-display);letter-spacing:-.02em}
+.cat-count{margin-top:10px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 12px;padding:0 16px calc(32px + var(--safe-b))}
+.empty{grid-column:1/-1;padding:24px 0;color:var(--muted)}
+
+/* плашка вещи */
+.card{display:block;width:100%;transition:transform .15s var(--ease);
+  animation:rise .5s var(--ease) backwards;animation-delay:calc(var(--i,0)*35ms + 140ms)}
+.card:active{transform:scale(.97)}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+.art{position:relative;aspect-ratio:4/5;display:grid;place-items:center;overflow:hidden;
+  background:var(--paper);border-radius:14px}
+.art svg{width:78%;height:auto}
+.art img{width:100%;height:100%;object-fit:cover}
+.art::before{content:'';position:absolute;top:10px;left:50%;width:9px;height:9px;margin-left:-4.5px;
+  border-radius:50%;background:var(--bg);box-shadow:inset 0 1px 1px rgba(0,0,0,.28);z-index:1}
+.meta{display:block;padding:10px 2px 0}
+.name{display:-webkit-box;line-clamp: 2;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:500;line-height:1.25}
+.price{display:block;margin-top:5px;font-weight:600;font-variant-numeric:tabular-nums}
+
+/* страница вещи */
+.item{z-index:3;transform:translateY(100%);visibility:hidden;transition:transform .5s var(--ease),visibility 0s .5s}
+.item.open{transform:none;visibility:visible;transition:transform .5s var(--ease)}
+.item.instant,.item.instant.open{transition:none}
+.hero{margin:calc(12px + var(--safe-t)) 16px 0;border-radius:20px}
+.bar + .hero{margin-top:0}
+.i-head{padding:20px 16px 0}
+.i-name{font:500 21px/1.2 var(--f-display);letter-spacing:-.02em}
+.i-price{margin-top:10px;font:600 24px/1 var(--f-text);font-variant-numeric:tabular-nums}
+
+/* паспорт: бирка на нитке */
+.tagwrap{position:relative;margin:4px 16px 8px;padding-top:44px;transform-origin:50% 14px;
+  transform:rotate(7deg);filter:drop-shadow(0 10px 16px rgba(17,20,23,.14))}
+.nail{position:absolute;top:8px;left:50%;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:var(--ink);z-index:3}
+.string{position:absolute;top:14px;left:50%;width:2px;height:52px;margin-left:-1px;background:var(--ink);z-index:2}
+.tagwrap.swing{animation:swing 1.7s ease-in-out both}
+@keyframes swing{
+  0%{transform:rotate(7deg)}
+  24%{transform:rotate(-5deg)}
+  46%{transform:rotate(3deg)}
+  68%{transform:rotate(-1.4deg)}
+  100%{transform:rotate(0)}
+}
+.tag{position:relative;padding:40px 18px 20px;background:var(--paper);
+  clip-path:polygon(26px 0,calc(100% - 26px) 0,100% 26px,100% 100%,0 100%,0 26px)}
+.hole{position:absolute;top:16px;left:50%;width:12px;height:12px;margin-left:-6px;border-radius:50%;
+  background:var(--bg);box-shadow:inset 0 1px 2px rgba(0,0,0,.35)}
+.tag-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding-bottom:14px;border-bottom:2px dashed var(--line)}
+.tag-title{font:500 15px/1.2 var(--f-display);letter-spacing:-.01em}
+.tag-art{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.spec{display:grid;grid-template-columns:104px minmax(0,1fr)}
+.spec dt,.spec dd{padding:11px 0;border-bottom:1px solid var(--line)}
+.spec dt{font-size:13px;color:var(--muted);padding-top:12px}
+.spec dd{font-weight:500}
+.spec > :nth-last-child(-n+2){border-bottom:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{min-width:34px;padding:2px 9px;border:1.5px solid var(--ink);border-radius:6px;font-size:13px;font-weight:500;text-align:center}
+.sw{display:inline-flex;align-items:center;gap:7px;margin:0 14px 4px 0}
+.sw i{width:13px;height:13px;border-radius:50%;border:1px solid rgba(17,20,23,.35)}
+.code{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-top:14px;padding-top:16px;border-top:2px dashed var(--line)}
+.code svg{width:58%;height:34px;fill:var(--ink)}
+.code span{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+.cta{position:sticky;bottom:0;padding:18px 16px calc(14px + var(--safe-b));background:linear-gradient(to top,var(--bg) 72%,transparent)}
+.btn{display:block;width:100%;height:52px;border-radius:14px;background:var(--accent);color:#fff;
+  font:600 16px/52px var(--f-text);text-align:center;transition:transform .15s var(--ease)}
+.btn:active{transform:scale(.98)}
+
+/* общий переход картинки: карточка <-> страница вещи */
+::view-transition-group(art){animation-duration:.45s;animation-timing-function:var(--ease)}
+::view-transition-old(art),::view-transition-new(art){height:100%;object-fit:cover}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.3s}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important}
+  .tagwrap{transform:none}
+}
+</style>
+</head>
+<body>
+
+<main class="page home" id="home">
+  <h1>Каталог</h1>
+  <p class="sub" id="total"></p>
+  <div class="rows" id="rows"></div>
+</main>
+
+<section class="page cat" id="cat">
+  <div class="bar"><button class="back" data-act="back" aria-label="Назад"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+  <div class="cat-head" id="catHead"></div>
+  <div class="grid" id="grid"></div>
+</section>
+
+<article class="page item" id="item"></article>
+
+<script>
+(() => {
+'use strict';
+
+/* =====================================================================
+   НАСТРОЙКИ — меняйте здесь
+   ===================================================================== */
+const CONFIG = {
+  manager: 'zombi3boy',        // username менеджера в Telegram, без @
+  delivery: '10–15 дней'          // срок доставки из Китая (показывается в паспорте)
+};
+
+const CATEGORIES = [
+  { id: 'jacket',      names: ['JACKET', 'BOMBER'] },
+  { id: 'shoes',       names: ['SHOES'] },
+  { id: 'accessories', names: ['ACCESSORIES'] },
+  { id: 'hoodie',      names: ['HOODIE', 'CREWNECK', 'LONGSLEEVE'] },
+  { id: 'pants',       names: ['SWEATPANTS', 'JEANS'] },
+  { id: 'tshirts',     names: ['T SHIRTS'] }
+];
+
+/* Вещь = одна строка. Поле img (ссылка на фото) необязательно:
+   пока его нет, показывается силуэт цвета первой расцветки.
+   Данные ниже — ДЕМО, замените на свои. */
+const C = {
+  black:['Чёрный','#1C1F22'], white:['Молочный','#EDEBE4'], olive:['Оливковый','#5B6340'],
+  grey:['Серый','#8A9097'], navy:['Тёмно-синий','#1F2A44'], sand:['Песочный','#C9B79A'],
+  blue:['Синий деним','#4A6285'], brown:['Коричневый','#5A4234']
+};
+const col = (...k) => k.map(x => ({ name: C[x][0], hex: C[x][1] }));
+const CLO = ['S','M','L','XL','XXL'];
+const SHO = ['40','41','42','43','44','45'];
+const ONE = ['Единый'];
+
+const ITEMS = [
+  { id:'j1', cat:'jacket', name:'Бомбер оверсайз, плотный нейлон', art:'JB-001', price:5900, material:'Нейлон, подкладка полиэстер', sizes:CLO, colors:col('black','olive'), weight:780, },
+  { id:'j2', cat:'jacket', name:'Куртка на молнии с воротником-стойкой', art:'JB-002', price:6400, cny:279, material:'Хлопок с нейлоном', fit:'Прямой', sizes:CLO, colors:col('sand','navy'), weight:850, source:'Weidian' },
+  { id:'j3', cat:'jacket', name:'Бомбер с трикотажными манжетами', art:'JB-003', price:5300, cny:231, material:'Полиэстер, утеплитель', fit:'Свободный', sizes:CLO, colors:col('olive','black','grey'), weight:720, source:'Taobao' },
+
+  { id:'s1', cat:'shoes', name:'Кроссовки на массивной подошве', art:'SH-001', price:7200, cny:315, material:'Сетка, синтетическая кожа', fit:'Стандартная колодка', sizes:SHO, colors:col('white','black'), weight:1100, source:'Taobao' },
+  { id:'s2', cat:'shoes', name:'Низкие кеды, гладкая кожа', art:'SH-002', price:6100, cny:266, material:'Натуральная кожа, резина', fit:'Стандартная колодка', sizes:SHO, colors:col('white'), weight:950, source:'Weidian' },
+  { id:'s3', cat:'shoes', name:'Ботинки на шнуровке', art:'SH-003', price:8300, cny:362, material:'Кожа, подошва с протектором', fit:'Маломерят на размер', sizes:SHO, colors:col('brown','black'), weight:1350, source:'Taobao' },
+
+  { id:'a1', cat:'accessories', name:'Кепка шестипанельная, хлопок', art:'AC-001', price:1500, cny:65, material:'Хлопок', fit:'Регулируемая', sizes:ONE, colors:col('black','sand','navy'), weight:90, source:'Taobao' },
+  { id:'a2', cat:'accessories', name:'Панама с широкими полями', art:'AC-002', price:1700, cny:74, material:'Хлопок, нейлон', fit:'Регулируемая', sizes:ONE, colors:col('olive','black'), weight:110, source:'Weidian' },
+  { id:'a3', cat:'accessories', name:'Бейсболка с прямым козырьком', art:'AC-003', price:1400, cny:61, material:'Хлопковый твил', fit:'Регулируемая', sizes:ONE, colors:col('white','grey'), weight:95, source:'Taobao' },
+
+  { id:'h1', cat:'hoodie', name:'Худи оверсайз, футер 400 г', art:'HD-001', price:4800, cny:210, material:'Хлопок 80%, полиэстер 20%', fit:'Оверсайз', sizes:CLO, colors:col('grey','black','white'), weight:760, source:'Taobao' },
+  { id:'h2', cat:'hoodie', name:'Свитшот с круглым вырезом', art:'HD-002', price:4100, cny:179, material:'Хлопок, футер с начёсом', fit:'Свободный', sizes:CLO, colors:col('navy','grey'), weight:640, source:'Weidian' },
+  { id:'h3', cat:'hoodie', name:'Лонгслив с принтом на рукаве', art:'HD-003', price:2900, cny:126, material:'Хлопок 100%', fit:'Прямой', sizes:CLO, colors:col('black','white'), weight:330, source:'Taobao' },
+  { id:'h4', cat:'hoodie', name:'Худи на молнии с карманами', art:'HD-004', price:5200, cny:227, material:'Хлопок, футер', fit:'Свободный', sizes:CLO, colors:col('olive','sand'), weight:820, source:'Taobao' },
+
+  { id:'p1', cat:'pants', name:'Спортивные штаны прямого кроя', art:'SP-001', price:3600, cny:157, material:'Хлопок, футер', fit:'Прямой', sizes:CLO, colors:col('grey','black'), weight:560, source:'Taobao' },
+  { id:'p2', cat:'pants', name:'Джинсы wide leg', art:'SP-002', price:4700, cny:205, material:'Деним 12 oz', fit:'Широкий', sizes:['28','30','32','34','36'], colors:col('blue','black'), weight:900, source:'Weidian' },
+  { id:'p3', cat:'pants', name:'Карго-джоггеры с манжетами', art:'SP-003', price:4200, cny:183, material:'Хлопок, рипстоп', fit:'Зауженный к низу', sizes:CLO, colors:col('olive','sand'), weight:680, source:'Taobao' },
+
+  { id:'t1', cat:'tshirts', name:'Футболка оверсайз, 240 г', art:'TS-001', price:2100, cny:92, material:'Хлопок 100%', fit:'Оверсайз', sizes:CLO, colors:col('white','black','grey'), weight:290, source:'Taobao' },
+  { id:'t2', cat:'tshirts', name:'Футболка boxy с принтом', art:'TS-002', price:2500, cny:109, material:'Хлопок 100%', fit:'Boxy, укороченная', sizes:CLO, colors:col('black','sand'), weight:300, source:'Weidian' },
+  { id:'t3', cat:'tshirts', name:'Футболка базовая, плотный трикотаж', art:'TS-003', price:1800, cny:78, material:'Хлопок, эластан', fit:'Прямой', sizes:CLO, colors:col('white','navy','olive'), weight:240, source:'Taobao' }
+];
+
+/* =====================================================================
+   Силуэты (пока нет фото)
+   ===================================================================== */
+const SIL = {
+  jacket:{ m:'M31 20 L42 14 Q50 21 58 14 L69 20 L91 40 L85 68 L75 64 L75 86 L25 86 L25 64 L15 68 L9 40 Z',
+           d:'M50 20 V86 M25 77 H75 M38 35 L50 25 L62 35 M12 58 L20 62 M88 58 L80 62' },
+  shoes:{ m:'M6 64 L6 52 Q20 52 28 42 L38 46 Q52 54 68 52 Q90 52 95 66 L95 72 L6 72 Z',
+          d:'M6 66 H95 M34 47 L40 41 M42 50 L48 44 M50 52 L56 46 M80 56 Q88 58 90 64' },
+  accessories:{ m:'M18 62 Q18 28 50 26 Q82 28 82 62 Z M64 60 Q96 58 96 68 Q82 72 62 66 Z',
+                d:'M50 26 Q44 44 46 62 M50 26 Q56 44 54 62 M18 62 H82' },
+  hoodie:{ m:'M36 16 Q50 8 64 16 L88 34 L83 64 L73 60 L73 88 L27 88 L27 60 L17 64 L12 34 Z',
+           d:'M38 16 Q50 34 62 16 M46 30 V46 M54 30 V46 M36 66 H64 L67 80 H33 Z' },
+  pants:{ m:'M30 12 H70 L77 90 H56 L50 42 L44 90 H23 Z',
+          d:'M30 20 H70 M46 20 V30 M54 20 V30 M23 82 H44 M56 82 H77' },
+  tshirts:{ m:'M34 14 Q50 26 66 14 L91 28 L83 46 L73 41 L73 86 L27 86 L27 41 L17 46 L9 28 Z',
+            d:'M36 15 Q50 30 64 15 M27 80 H73 M85 38 L78 42 M15 38 L22 42' }
+};
+const sil = (cat, color) =>
+  `<svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">` +
+  `<path d="${SIL[cat].m}" fill="${color}" stroke="#111417" stroke-opacity=".3" stroke-width="1.4" stroke-linejoin="round"/>` +
+  `<path d="${SIL[cat].d}" fill="none" stroke="#111417" stroke-opacity=".3" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+/* =====================================================================
+   Утилиты
+   ===================================================================== */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money = new Intl.NumberFormat('ru-RU');
+const rub = n => money.format(n) + ' ₽';
+const plural = (n, a, b, c) => { const m = n % 100, d = n % 10; return m > 10 && m < 20 ? c : d === 1 ? a : d > 1 && d < 5 ? b : c; };
+const CAT = Object.fromEntries(CATEGORIES.map(c => [c.id, c]));
+const ITEM = Object.fromEntries(ITEMS.map(i => [i.id, i]));
+const inCat = id => ITEMS.filter(i => i.cat === id);
+const art = (it, eager) => it.img
+  ? `<img src="${esc(it.img)}" alt="" decoding="async"${eager ? '' : ' loading="lazy"'}>`
+  : sil(it.cat, it.colors[0].hex);
+
+function barcode(text) {
+  const bits = '101' + [...text].map(c => c.charCodeAt(0).toString(2).padStart(8, '0')).join('') + '101';
+  let x = 2, bars = '';
+  for (const b of bits) { if (b === '1') bars += `<rect x="${x}" width="1.6" height="34"/>`; x += 2.2; }
+  return `<svg viewBox="0 0 ${x + 2} 34" preserveAspectRatio="none" aria-hidden="true">${bars}</svg>`;
+}
+
+/* =====================================================================
+   Telegram
+   ===================================================================== */
+const tg = window.Telegram && window.Telegram.WebApp;
+const inTG = !!(tg && tg.initData);
+const hap = () => { try { tg.HapticFeedback.selectionChanged(); } catch (_) {} };
+if (inTG) {
+  document.documentElement.classList.add('tg');
+  try { tg.ready(); tg.expand(); } catch (_) {}
+  try { tg.setHeaderColor('#E4E7E9'); tg.setBackgroundColor('#E4E7E9'); } catch (_) {}
+  try { tg.disableVerticalSwipes(); } catch (_) {}
+  try { tg.BackButton.onClick(() => history.back()); } catch (_) {}
+}
+const syncBack = () => {
+  if (!inTG) return;
+  try { route.view === 'home' ? tg.BackButton.hide() : tg.BackButton.show(); } catch (_) {}
+};
+
+/* =====================================================================
+   Рендер
+   ===================================================================== */
+const el = { home: $('#home'), cat: $('#cat'), item: $('#item'), grid: $('#grid'), head: $('#catHead') };
+let route = { view: 'home' };
+let renderedCat = null;
+
+function buildHome() {
+  const n = ITEMS.length;
+  $('#total').textContent = `${n} ${plural(n, 'вещь', 'вещи', 'вещей')} из Китая`;
+  $('#rows').innerHTML = CATEGORIES.map(c => {
+    const k = inCat(c.id).length;
+    return `<button class="row" data-cat="${c.id}">
+      <span><span class="row-name">${c.names.map(x => `<span>${esc(x)}</span>`).join('')}</span>
+      <span class="row-count">${k ? `${k} ${plural(k, 'вещь', 'вещи', 'вещей')}` : 'Скоро'}</span></span>
+      ${sil(c.id, '#F6F6F3')}</button>`;
+  }).join('');
+}
+
+function buildCat(id) {
+  const c = CAT[id], list = inCat(id);
+  renderedCat = id;
+  el.head.innerHTML =
+    `<h2 class="cat-title">${c.names.map(x => `<span>${esc(x)}</span>`).join('')}</h2>` +
+    `<p class="cat-count">${list.length ? `${list.length} ${plural(list.length, 'вещь', 'вещи', 'вещей')}` : ''}</p>`;
+  el.grid.innerHTML = list.length
+    ? list.map((it, i) => `<button class="card" data-id="${it.id}" style="--i:${Math.min(i, 8)}">
+        <span class="art">${art(it)}</span>
+        <span class="meta"><span class="name">${esc(it.name)}</span><span class="price">${rub(it.price)}</span></span>
+      </button>`).join('')
+    : `<p class="empty">Здесь пока пусто. Новые вещи появятся позже.</p>`;
+  el.cat.scrollTop = 0;
+}
+
+function buildItem(id) {
+  const it = ITEM[id];
+  const rows = [
+    ['Материал', esc(it.material)],
+    ['Посадка', esc(it.fit)],
+    ['Размеры', `<div class="chips">${it.sizes.map(s => `<span class="chip">${esc(s)}</span>`).join('')}</div>`],
+    ['Цвета', it.colors.map(c => `<span class="sw"><i style="background:${c.hex}"></i>${esc(c.name)}</span>`).join('')],
+    ['Вес', `${it.weight} г`],
+    ['Цена в Китае', `${it.cny} ¥`],
+    ['Площадка', esc(it.source)],
+    ['Доставка', esc(CONFIG.delivery)]
+  ];
+  el.item.innerHTML =
+    `<div class="bar"><button class="back" data-act="back" aria-label="Назад"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>` +
+    `<div class="art hero">${art(it, true)}</div>` +
+    `<div class="i-head"><h2 class="i-name">${esc(it.name)}</h2><p class="i-price">${rub(it.price)}</p></div>` +
+    `<div class="tagwrap" id="tagwrap"><i class="nail"></i><i class="string"></i>
+      <div class="tag"><i class="hole"></i>
+        <div class="tag-head"><span class="tag-title">Паспорт вещи</span><span class="tag-art">${esc(it.art)}</span></div>
+        <dl class="spec">${rows.map(r => `<dt>${r[0]}</dt><dd>${r[1]}</dd>`).join('')}</dl>
+        <div class="code">${barcode(it.art)}</div>
+      </div></div>` +
+    `<div class="cta"><button class="btn" data-act="order">Заказать у менеджера</button></div>`;
+  el.item.scrollTop = 0;
+}
+
+const swing = () => { const w = $('#tagwrap'); if (w) requestAnimationFrame(() => w.classList.add('swing')); };
+
+/* =====================================================================
+   Навигация: #/  →  #/c/<категория>  →  #/i/<вещь>
+   ===================================================================== */
+function parse() {
+  const p = location.hash.replace(/^#\/?/, '').split('/');
+  if (p[0] === 'c' && CAT[p[1]]) return { view: 'cat', cat: p[1] };
+  if (p[0] === 'i' && ITEM[p[1]]) return { view: 'item', id: p[1], cat: ITEM[p[1]].cat };
+  return { view: 'home' };
+}
+
+const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+
+function render(first) {
+  const next = parse(), prev = route;
+  if (!first && next.view === prev.view && next.cat === prev.cat && next.id === prev.id) return;
+  route = next;
+
+  const apply = () => {
+    if (next.cat && renderedCat !== next.cat) buildCat(next.cat);
+    if (next.view === 'item') buildItem(next.id);
+    el.cat.classList.toggle('open', next.view !== 'home');
+    el.item.classList.toggle('open', next.view === 'item');
+    el.home.classList.toggle('shift', next.view !== 'home');
+    syncBack();
+  };
+
+  const toItem = next.view === 'item' && prev.view === 'cat';
+  const fromItem = prev.view === 'item' && next.view === 'cat';
+
+  if (!first && (toItem || fromItem) && document.startViewTransition && !reduce.matches) {
+    const id = toItem ? next.id : prev.id;
+    const cardArt = () => el.grid.querySelector(`[data-id="${CSS.escape(id)}"] .art`);
+    const name = (node, on) => { if (node) node.style.viewTransitionName = on ? 'art' : ''; };
+    name(toItem ? cardArt() : $('.hero'), true);
+    el.item.classList.add('instant');
+    const t = document.startViewTransition(() => {
+      if (toItem) { name(cardArt(), false); apply(); name($('.hero'), true); }
+      else        { name($('.hero'), false); apply(); name(cardArt(), true); }
+    });
+    t.finished.catch(() => {}).then(() => {
+      name(cardArt(), false); name($('.hero'), false);
+      el.item.classList.remove('instant');
+      if (toItem) swing();
+    });
+    return;
+  }
+
+  apply();
+  if (next.view === 'item') setTimeout(swing, 320);
+}
+
+function go(hash) { history.pushState(null, '', hash); render(); }
+
+function startRoute() {
+  let target = parse();
+  const sp = inTG && tg.initDataUnsafe && tg.initDataUnsafe.start_param;   // t.me/бот/app?startapp=i-j1
+  if (target.view === 'home' && sp) {
+    if (sp.startsWith('i-') && ITEM[sp.slice(2)]) target = { view: 'item', id: sp.slice(2), cat: ITEM[sp.slice(2)].cat };
+    else if (sp.startsWith('c-') && CAT[sp.slice(2)]) target = { view: 'cat', cat: sp.slice(2) };
+  }
+  // собираем историю, чтобы «Назад» всегда шёл вверх по уровням
+  history.replaceState(null, '', '#/');
+  if (target.view !== 'home') history.pushState(null, '', '#/c/' + target.cat);
+  if (target.view === 'item') history.pushState(null, '', '#/i/' + target.id);
+  render(true);
+}
+
+function order() {
+  const it = ITEM[route.id]; if (!it) return;
+  const url = `https://t.me/${CONFIG.manager}?text=${encodeURIComponent(`Хочу заказать: ${it.name} (${it.art})`)}`;
+  if (inTG && tg.openTelegramLink) tg.openTelegramLink(url); else window.open(url, '_blank', 'noopener');
+}
+
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-cat],[data-id],[data-act]');
+  if (!t) return;
+  const act = t.dataset.act;
+  if (act === 'back') return history.back();
+  if (act === 'order') { try { tg.HapticFeedback.impactOccurred('light'); } catch (_) {} return order(); }
+  hap();
+  go(t.dataset.cat ? '#/c/' + t.dataset.cat : '#/i/' + t.dataset.id);
+});
+addEventListener('popstate', () => render());
+
+buildHome();
+startRoute();
+})();
+</script>
+</body>
+</html>
